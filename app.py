@@ -484,19 +484,60 @@ class GojoApp:
         x = self.pet_x
         y = 180
         angry = self.pet_mood == "angry"
+        step = self.pet_step % 8
+        front = step if step < 4 else 8 - step
+        back = 4 - front if front < 4 else front - 4
+        arm_l = 12 + front
+        arm_r = 12 + back
+        leg_l = 8 + front
+        leg_r = 8 + back
 
-        c.create_oval(x - 38, y + 110, x + 38, y + 118, fill="#070b12", outline="", tags="pet")
-        c.create_oval(x - 30, y + 38, x + 30, y + 90, fill="#2d3555", outline="#8190be", width=2, tags="pet")
-        c.create_oval(x - 36, y - 20, x + 36, y + 38, fill="#f5e9df", outline="#faffff", width=2, tags="pet")
-        for dx, dy, r in [(-24, -28, 12), (-14, -36, 14), (0, -40, 15), (15, -36, 14), (24, -28, 12)]:
-            c.create_oval(x + dx - r, y + dy - r, x + dx + r, y + dy + r, fill="#edf2ff", outline="#d6dffb", width=1, tags="pet")
-        eye = "#ff6d7d" if angry else "#68d9ff"
-        c.create_oval(x - 18, y + 5, x - 9, y + 13, fill=eye, outline="", tags="pet")
-        c.create_oval(x + 9, y + 5, x + 18, y + 13, fill=eye, outline="", tags="pet")
-        c.create_arc(x - 10, y + 18, x + 10, y + 28, start=200 if angry else 190, extent=140, style="arc", outline="#7f3d49", width=2, tags="pet")
-        c.create_text(x, 290, text="GOJO  •  " + ("angry" if angry else "here"), fill="#d6c9f6", font=("Segoe UI", 9, "bold"), tags="pet")
+        c.create_oval(x - 52, y + 116, x + 52, y + 125, fill="#090d18", outline="", tags="pet")
+
+        # body
+        c.create_line(x, y + 20, x, y + 82, fill="#f3e7de", width=7, tags="pet")
+        c.create_line(x - 8, y + 80, x - 14, y + 110 + leg_l, fill="#f3f4ff", width=5, tags="pet")
+        c.create_line(x + 8, y + 80, x + 22, y + 110 + leg_r, fill="#f3f4ff", width=5, tags="pet")
+        c.create_line(x - 7, y + 30, x - 24, y + 44 + arm_l, fill="#f3d6c5", width=5, tags="pet")
+        c.create_line(x + 7, y + 30, x + 22, y + 44 + arm_r, fill="#f3d6c5", width=5, tags="pet")
+
+        # head + hair
+        c.create_oval(x - 36, y, x + 36, y + 52, fill="#f6e9df", outline="#faf0eb", width=2, tags="pet")
+        hair = [
+            (x - 34, y + 10),
+            (x - 24, y - 18),
+            (x - 10, y - 2),
+            (x, y - 24),
+            (x + 10, y - 2),
+            (x + 24, y - 18),
+            (x + 34, y + 10),
+        ]
+        c.create_polygon(*sum((pt for pt in hair), ()), fill="#f7fbff", outline="#edf3ff", tags="pet")
+
+        # blindfold
+        c.create_rectangle(x - 30, y + 15, x + 30, y + 24, fill="#121212", outline="#000000", width=2, tags="pet")
+        c.create_line(x - 10, y + 19, x + 10, y + 19, fill="#2c2c2c", width=2, tags="pet")
+
+        # face expression
+        if angry:
+            c.create_arc(x - 12, y + 22, x + 12, y + 34, start=210, extent=120, style="arc", outline="#7d2d3a", width=2, tags="pet")
+            c.create_line(x - 18, y + 34, x + 18, y + 34, fill="#8c4658", width=2, tags="pet")
+            c.create_oval(x - 18, y + 18, x - 10, y + 25, fill="#f4dfe2", outline="#f4dfe2", tags="pet")
+            c.create_oval(x + 10, y + 18, x + 18, y + 25, fill="#f4dfe2", outline="#f4dfe2", tags="pet")
+            c.create_oval(x - 30, y + 32, x + 30, y + 42, fill="#ff8e95", outline="#ff8e95", tags="pet")
+        else:
+            c.create_arc(x - 14, y + 22, x + 14, y + 34, start=200, extent=140, style="arc", outline="#7a4954", width=2, tags="pet")
+
+        # outer aura rings when angry
+        if angry:
+            c.create_oval(x - 52, y - 18, x + 52, y + 62, outline="#ff9ca5", width=2, tags="pet")
+            c.create_oval(x - 60, y - 24, x + 60, y + 68, outline="#ff6f7d", width=1, tags="pet")
+
+        # label
+        c.create_text(x, 290, text="GOJO  •  " + ("angry" if angry else "calm"), fill="#d6c9f6", font=("Segoe UI", 9, "bold"), tags="pet")
 
     def _pet_loop(self):
+        self.pet_step += 1
         if not self.pet_hidden:
             self.pet_x += self.pet_direction * 3
             if self.pet_x > 200 or self.pet_x < 26:
@@ -507,7 +548,7 @@ class GojoApp:
     def pet_leave(self):
         self.pet_mood = "angry"
         self.pet_direction = 1
-        self.pet_hidden = False
+        self.draw_pet()
         self.status.set("Gojo is giving you space")
 
         def step_out():
