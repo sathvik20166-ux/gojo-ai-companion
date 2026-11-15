@@ -1,34 +1,29 @@
-# Gojo — Local Python Assistant
+# Gojo — Local Desktop Companion
 
-A rule-based desktop assistant. It uses no AI model, API, Ollama, or cloud service. It can speak replies using optional system TTS, open a small allow-list of installed apps, keep study tasks locally, create Tailwind HTML starter sites (up to six per request), and create an Unreal project scaffold. Actions that launch apps, open web pages, or create files require an on-screen approval.
+Python desktop companion with typed chat, optional offline speech recognition, local text-to-speech, a small animated chibi mascot, allow-listed app launching, study-task storage, Tailwind site generation, and an Unreal project scaffold. It uses no LLM, Ollama, cloud AI, or external chat API. Conversation is rule-based, not general-purpose AI.
 
 ## Run
 
-Python 3.10+ with Tkinter is required.
+Python 3.10+ and Tkinter are required:
 
 ```bash
 python -m pip install -r requirements.txt
 python app.py
 ```
 
-If `pyttsx3` is installed and the machine has a speech voice, Gojo reads assistant replies aloud. Otherwise the app still works silently. On Windows, `python -m tkinter` can check whether Tkinter is available.
+Speech input uses SpeechRecognition + PocketSphinx locally. Microphone support depends on PyAudio and OS permissions; if its installation fails, typed chat still works. Spoken replies use local system voices through pyttsx3. Generated Tailwind sites load Tailwind from its CDN when viewed, so styling needs an internet connection.
 
-## Commands
+## Commands and buttons
 
 - `open Notepad`, `open Calculator`, `open Paint`, `open File Explorer`, `open Chrome`, `open Edge`, `open Unreal`
-- `search for game ideas`
-- `open https://example.com`
-- `create a website for my study project`
-- `create 6 websites about my game`
+- `search for …` or `open https://…`
+- `create a website for …` or `create 6 websites about …` (maximum six)
 - `create an Unreal game project named StarQuest`
-- `add study task Biology chapter 3`
-- `show study planner`
-- `stop`
+- `add study task Biology chapter 3`; `show study planner`
+- `stop`; `I’m angry` / `go away`; `come back`
 
-The study tasks and chat history are stored in `gojo_local.sqlite3` next to the script. Tailwind CSS is loaded from its CDN, so the generated site's styling requires internet access when viewed. Six-site requests are capped at six.
+Click the mascot-side quick actions to open the study planner or start common tasks. App/browser/file actions ask for approval. Saying an angry/leave-me-alone phrase makes the mascot walk off its stage and return after five seconds; “come back” returns it sooner.
 
-## Unreal limitation
+## Character and limits
 
-Gojo creates a basic `.uproject` descriptor plus empty `Content` and `Config` directories. This is a starter scaffold—not gameplay, a map, assets, or a guaranteed ready-to-play game. Open the descriptor in an installed Unreal Editor and complete project setup there. `open Unreal` launches an editor only if it can find `UnrealEditor` on PATH or `UE_EDITOR_PATH` is set to the executable path.
-
-This assistant is deliberately rule-based, not a general conversational AI. It does not execute arbitrary commands, send WhatsApp messages, or place calls.
+The app draws a simple original chibi-style fan interpretation; it does not include official Gojo artwork or reproduce the exact anime design. It is not a language model and only responds to implemented commands/patterns. The Unreal action creates a `.uproject` descriptor and empty folders, not a playable game. `open Unreal` requires Unreal Editor to be installed; set `UE_EDITOR_PATH` if it is not on PATH. Chat/study data stays in `gojo_local.sqlite3` next to the app.
